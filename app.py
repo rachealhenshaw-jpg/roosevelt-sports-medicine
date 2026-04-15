@@ -11,12 +11,12 @@ SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+# ---------------- AI ENDPOINT ----------------
+REPLIT_AI_URL = "https://roosevelt-ai-vision--rachealhenshaw.replit.app/analyze"
+
 # ---------------- SESSION ----------------
 if "user" not in st.session_state:
-    st.session_state.user = True  # simplified (no auth system yet)
-
-# ---------------- AI ENDPOINT ----------------
-REPLIT_AI_URL = "https://YOUR-REPLIT-URL/analyze"
+    st.session_state.user = True
 
 # ---------------- NAVIGATION ----------------
 page = st.sidebar.radio("Navigation", [
@@ -42,10 +42,9 @@ if page == "Dashboard":
 
     st.divider()
 
-    st.subheader("Athlete List")
-
+    st.subheader("Athletes")
     for a in athletes:
-        st.write(a["name"], "-", a["sport"], "-", a["status"])
+        st.write(f"{a['name']} - {a['sport']} - {a['status']}")
 
 # ---------------- ATHLETES ----------------
 elif page == "Athletes":
@@ -103,14 +102,17 @@ elif page == "Rehab":
 
         st.success("Saved")
 
-# ---------------- AI VISION (CONNECTED TO REPLIT) ----------------
+# ---------------- AI VISION ----------------
 elif page == "AI Vision":
 
     st.title("AI Movement Analysis Engine")
 
     athlete = st.text_input("Athlete Name")
 
-    video = st.file_uploader("Upload Video/Image", type=["mp4", "mov", "jpg", "png"])
+    video = st.file_uploader(
+        "Upload Video/Image",
+        type=["mp4", "mov", "jpg", "png"]
+    )
 
     if video:
 
@@ -119,31 +121,40 @@ elif page == "AI Vision":
         if st.button("Run AI Analysis"):
 
             try:
-                files = {"file": video.getvalue()}
+                with st.spinner("Analyzing movement with AI Vision..."):
 
-                response = requests.post(
-                    REPLIT_AI_URL,
-                    files=files
-                )
+                    # FIXED FILE FORMAT (IMPORTANT)
+                    files = {
+                        "file": (video.name, video.getvalue(), video.type)
+                    }
 
-                if response.status_code == 200:
+                    response = requests.post(
+                        REPLIT_AI_URL,
+                        files=files
+                    )
 
-                    result = response.json()
+                    if response.status_code == 200:
 
-                    st.success("AI Analysis Complete")
+                        try:
+                            result = response.json()
+                        except:
+                            st.error("Invalid response from AI server")
+                            st.stop()
 
-                    st.metric("Injury Risk Score", result["injury_risk_score"])
-                    st.metric("Risk Level", result["risk_level"])
+                        st.success("AI Analysis Complete")
 
-                    # SAVE TO SUPABASE
-                    supabase.table("screenings").insert({
-                        "athlete": athlete,
-                        "shoulder_score": 0,
-                        "acl_score": result["injury_risk_score"]
-                    }).execute()
+                        st.metric("Injury Risk Score", result["injury_risk_score"])
+                        st.metric("Risk Level", result["risk_level"])
 
-                else:
-                    st.error("AI server error")
+                        # SAVE TO SUPABASE (CLEAN TABLE DESIGN)
+                        supabase.table("ai_results").insert({
+                            "athlete": athlete,
+                            "risk_score": result["injury_risk_score"],
+                            "risk_level": result["risk_level"]
+                        }).execute()
+
+                    else:
+                        st.error("AI server error")
 
             except Exception as e:
                 st.error(f"Connection failed: {e}")
