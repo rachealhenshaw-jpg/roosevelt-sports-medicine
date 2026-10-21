@@ -1,1 +1,92 @@
-import React, { useState, useEffect } from "react"; import { createClient } from "@supabase/supabase-js"; const supabaseUrl = import.meta.env.VITE_SUPABASE_URL; const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY; const supabase = createClient(supabaseUrl, supabaseAnonKey); export default function App() { const [session, setSession] = useState(null); const [email, setEmail] = useState("rhensh@neisd.net"); const [password, setPassword] = useState(""); const [authError, setAuthError] = useState(""); const [athletes, setAthletes] = useState([]); const [loading, setLoading] = useState(false); const [selectedTab, setSelectedTab] = useState("Roster"); useEffect(() => { supabase.auth.getSession().then(({ data: { session } }) => setSession(session)); const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setSession(session)); return () => subscription.unsubscribe(); }, []); useEffect(() => { if (session) fetchAthleteData(); }, [session]); async function fetchAthleteData() { setLoading(true); const { data, error } = await supabase.from("athletes").select("*"); if (!error && data) setAthletes(data); setLoading(false); } if (!session) { return ( <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center p-4"><div className="max-w-md w-full bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-2xl"><h2 className="text-2xl font-bold text-emerald-400 mb-2">Titan Performance Suite</h2><p className="text-slate-400 mb-6">Sign in to access Supabase Athlete Analytics</p>{authError && <div className="mb-4 p-3 bg-red-900/50 border border-red-500 rounded text-red-200 text-sm">{authError}</div>}<form onSubmit={async (e) => { e.preventDefault(); setLoading(true); const { data, error } = await supabase.auth.signInWithPassword({ email, password }); if (error) setAuthError(error.message); else setSession(data.session); setLoading(false); }} className="space-y-4"><div><label className="block text-xs font-semibold uppercase text-slate-400 mb-1">Email</label><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-white focus:outline-none focus:border-emerald-500" required /></div><div><label className="block text-xs font-semibold uppercase text-slate-400 mb-1">Password</label><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-white focus:outline-none focus:border-emerald-500" required /></div><button type="submit" disabled={loading} className="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded transition">{loading ? "Signing in..." : "Sign In"}</button></form></div></div> ); } return ( <div className="min-h-screen bg-slate-950 text-white p-6"><div className="flex justify-between items-center mb-6"><h1 className="text-2xl font-bold text-emerald-400">Titan Performance Suite</h1><button onClick={() => supabase.auth.signOut()} className="bg-slate-800 hover:bg-slate-700 text-sm px-4 py-2 rounded border border-slate-700">Sign Out ({session.user.email})</button></div><div className="flex space-x-2 border-b border-slate-800 mb-6"><button onClick={() => setSelectedTab("Roster")} className={`px-4 py-2 text-sm font-semibold ${selectedTab === "Roster" ? "border-b-2 border-emerald-400 text-emerald-400" : "text-slate-400"}`}>Roster ({athletes.length})</button></div>{loading ? <p className="text-slate-400">Loading Supabase Data...</p> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{athletes.map((a, i) => ( <div key={a.id || i} className="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow"><h3 className="font-bold text-lg text-emerald-400">{a.name || a.athlete_name || `Athlete #${i + 1}`}</h3><p className="text-xs text-slate-400">Position: {a.position || "N/A"}</p><p className="text-xs text-slate-400">Status: {a.status || "Active"}</p></div> ))}</div>}</div> ); }
+import React, { useState, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+export default function App() {
+  const [session, setSession] = useState(null);
+  const [email, setEmail] = useState("rhensh@neisd.net");
+  const [password, setPassword] = useState("");
+  const [authError, setAuthError] = useState("");
+  const [athletes, setAthletes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedTab, setSelectedTab] = useState("Roster");
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setSession(session));
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (session) fetchAthleteData();
+  }, [session]);
+
+  async function fetchAthleteData() {
+    setLoading(true);
+    const { data, error } = await supabase.from("athletes").select("*");
+    if (!error && data) setAthletes(data);
+    setLoading(false);
+  }
+
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-2xl">
+          <h2 className="text-2xl font-bold text-emerald-400 mb-2">Titan Performance Suite</h2>
+          <p className="text-slate-400 mb-6">Sign in to access Supabase Athlete Analytics</p>
+          {authError && <div className="mb-4 p-3 bg-red-900/50 border border-red-500 rounded text-red-200 text-sm">{authError}</div>}
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            setLoading(true);
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) setAuthError(error.message);
+            else setSession(data.session);
+            setLoading(false);
+          }} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold uppercase text-slate-400 mb-1">Email</label>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-white focus:outline-none focus:border-emerald-500" required />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold uppercase text-slate-400 mb-1">Password</label>
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-white focus:outline-none focus:border-emerald-500" required />
+            </div>
+            <button type="submit" disabled={loading} className="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded transition">
+              {loading ? "Signing in..." : "Sign In"}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-white p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-emerald-400">Titan Performance Suite</h1>
+        <button onClick={() => supabase.auth.signOut()} className="bg-slate-800 hover:bg-slate-700 text-sm px-4 py-2 rounded border border-slate-700">
+          Sign Out ({session.user.email})
+        </button>
+      </div>
+      <div className="flex space-x-2 border-b border-slate-800 mb-6">
+        <button onClick={() => setSelectedTab("Roster")} className={`px-4 py-2 text-sm font-semibold ${selectedTab === "Roster" ? "border-b-2 border-emerald-400 text-emerald-400" : "text-slate-400"}`}>
+          Roster ({athletes.length})
+        </button>
+      </div>
+      {loading ? <p className="text-slate-400">Loading Supabase Data...</p> : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {athletes.map((a, i) => (
+            <div key={a.id || i} className="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow">
+              <h3 className="font-bold text-lg text-emerald-400">{a.name || a.athlete_name || `Athlete #${i + 1}`}</h3>
+              <p className="text-xs text-slate-400">Position: {a.position || "N/A"}</p>
+              <p className="text-xs text-slate-400">Status: {a.status || "Active"}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
