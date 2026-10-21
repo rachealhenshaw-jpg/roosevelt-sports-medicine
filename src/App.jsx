@@ -112,7 +112,7 @@ export default function App() {
   if (!session) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0d1117', color: '#c9d1d9', fontFamily: 'sans-serif' }}>
-        <div style={{ backgroundColor: '#161b22', padding: '32px', borderRadius: '8px', border: '1px solid #30363d', width: '100%', maxWidth: '400px' }}>
+        <div style={{ backgroundColor: '#161b22' }}22', padding: '32px', borderRadius: '8px', border: '1px solid #30363d', width: '100%', maxWidth: '400px' }}>
           <h2 style={{ color: '#238636', textAlign: 'center', marginBottom: '8px' }}>Titan Performance Suite</h2>
           <p style={{ color: '#8b949e', textAlign: 'center', fontSize: '14px', marginBottom: '24px' }}>Sign in to access secure athlete analytics</p>
           
@@ -141,7 +141,7 @@ export default function App() {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0d1117', color: '#c9d1d9', fontFamily: 'sans-serif' }}>
       {/* Top Header */}
-      <header style={{ backgroundColor: '#161b22', padding: '16px 24px', borderBottom: '1px solid #30363d', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <header style={{ backgroundColor: '#161b22' }}22', padding: '16px 24px', borderBottom: '1px solid #30363d', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1 style={{ fontSize: '20px', margin: 0, color: '#238636' }}>Titan Performance, Recruiting & Prehab Suite</h1>
           <span style={{ fontSize: '12px', color: '#8b949e' }}>Workload Analytics & Injury Prevention • Supabase Authenticated</span>
@@ -159,4 +159,4 @@ export default function App() {
       </header>
 
       {/* Navigation Tabs */}
-      <nav style={{ backgroundColor: '#161b
+      <nav style={{ backgroundColor: '#161b22' }}
