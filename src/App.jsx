@@ -10,6 +10,7 @@ export default function App() {
   const [email, setEmail] = useState("rhensh@neisd.net");
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
+  const [fetchError, setFetchError] = useState("");
   const [athletes, setAthletes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedTab, setSelectedTab] = useState("Roster");
@@ -26,8 +27,14 @@ export default function App() {
 
   async function fetchAthleteData() {
     setLoading(true);
+    setFetchError("");
     const { data, error } = await supabase.from("athletes").select("*");
-    if (!error && data) setAthletes(data);
+    if (error) {
+      console.error("Supabase error:", error);
+      setFetchError(error.message);
+    } else if (data) {
+      setAthletes(data);
+    }
     setLoading(false);
   }
 
@@ -35,8 +42,8 @@ export default function App() {
     <div style={{ minHeight: "100vh", width: "100vw", backgroundColor: "#0f172a", color: "#f8fafc", fontFamily: "system-ui, -apple-system, sans-serif", margin: 0, padding: 0, boxSizing: "border-box" }}>
       {!session ? (
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", padding: "20px" }}>
-          <div style={{ maxWidth: "400px", width: "100%", backgroundColor: "#1e293b", borderRadius: "12px", padding: "32px", border: "1px solid #334155", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)" }}>
-            <h2 style={{ fontSize: "24px", fontWeight: "700", color: "#34d399", margin: "0 0 8px 0" }}>Titan Performance Suite</h2>
+          <div style={{ maxWidth: "440px", width: "100%", backgroundColor: "#1e293b", borderRadius: "12px", padding: "32px", border: "1px solid #334155", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)" }}>
+            <h2 style={{ fontSize: "24px", fontWeight: "700", color: "#34d399", margin: "0 0 8px 0" }}>Roosevelt Performance and Injury Risk</h2>
             <p style={{ color: "#94a3b8", fontSize: "14px", margin: "0 0 24px 0" }}>Sign in to access Supabase Athlete Analytics</p>
 
             {authError && (
@@ -70,9 +77,9 @@ export default function App() {
       ) : (
         <div style={{ padding: "32px", maxWidth: "1200px", margin: "0 auto" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", borderBottom: "1px solid #334155", paddingBottom: "16px" }}>
-            <h1 style={{ fontSize: "28px", fontWeight: "800", color: "#34d399", margin: 0 }}>Titan Performance Suite</h1>
+            <h1 style={{ fontSize: "28px", fontWeight: "800", color: "#34d399", margin: 0 }}>Roosevelt Performance and Injury Risk</h1>
             <button onClick={() => supabase.auth.signOut()} style={{ backgroundColor: "#334155", color: "#ffffff", border: "none", padding: "8px 16px", borderRadius: "6px", cursor: "pointer", fontSize: "14px", fontWeight: "600" }}>
-              Sign Out ({session.user.email})
+              Sign Out (Dr. Henshaw)
             </button>
           </div>
 
@@ -82,8 +89,18 @@ export default function App() {
             </button>
           </div>
 
+          {fetchError && (
+            <div style={{ marginBottom: "20px", padding: "16px", backgroundColor: "#7f1d1d", border: "1px solid #ef4444", borderRadius: "8px", color: "#fca5a5", fontSize: "14px" }}>
+              <strong>Supabase Error:</strong> {fetchError}
+            </div>
+          )}
+
           {loading ? (
             <p style={{ color: "#94a3b8" }}>Loading Supabase Data...</p>
+          ) : athletes.length === 0 && !fetchError ? (
+            <div style={{ padding: "24px", backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: "8px", color: "#94a3b8" }}>
+              No athlete records found in table 'athletes'.
+            </div>
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "20px" }}>
               {athletes.map((a, i) => (
