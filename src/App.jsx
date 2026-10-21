@@ -31,60 +31,70 @@ export default function App() {
     setLoading(false);
   }
 
-  if (!session) {
-    return (
-      <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-2xl">
-          <h2 className="text-2xl font-bold text-emerald-400 mb-2">Titan Performance Suite</h2>
-          <p className="text-slate-400 mb-6">Sign in to access Supabase Athlete Analytics</p>
-          {authError && <div className="mb-4 p-3 bg-red-900/50 border border-red-500 rounded text-red-200 text-sm">{authError}</div>}
-          <form onSubmit={async (e) => {
-            e.preventDefault();
-            setLoading(true);
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) setAuthError(error.message);
-            else setSession(data.session);
-            setLoading(false);
-          }} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold uppercase text-slate-400 mb-1">Email</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-white focus:outline-none focus:border-emerald-500" required />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold uppercase text-slate-400 mb-1">Password</label>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-white focus:outline-none focus:border-emerald-500" required />
-            </div>
-            <button type="submit" disabled={loading} className="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded transition">
-              {loading ? "Signing in..." : "Sign In"}
-            </button>
-          </form>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-emerald-400">Titan Performance Suite</h1>
-        <button onClick={() => supabase.auth.signOut()} className="bg-slate-800 hover:bg-slate-700 text-sm px-4 py-2 rounded border border-slate-700">
-          Sign Out ({session.user.email})
-        </button>
-      </div>
-      <div className="flex space-x-2 border-b border-slate-800 mb-6">
-        <button onClick={() => setSelectedTab("Roster")} className={`px-4 py-2 text-sm font-semibold ${selectedTab === "Roster" ? "border-b-2 border-emerald-400 text-emerald-400" : "text-slate-400"}`}>
-          Roster ({athletes.length})
-        </button>
-      </div>
-      {loading ? <p className="text-slate-400">Loading Supabase Data...</p> : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {athletes.map((a, i) => (
-            <div key={a.id || i} className="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow">
-              <h3 className="font-bold text-lg text-emerald-400">{a.name || a.athlete_name || `Athlete #${i + 1}`}</h3>
-              <p className="text-xs text-slate-400">Position: {a.position || "N/A"}</p>
-              <p className="text-xs text-slate-400">Status: {a.status || "Active"}</p>
+    <div style={{ minHeight: "100vh", width: "100vw", backgroundColor: "#0f172a", color: "#f8fafc", fontFamily: "system-ui, -apple-system, sans-serif", margin: 0, padding: 0, boxSizing: "border-box" }}>
+      {!session ? (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", padding: "20px" }}>
+          <div style={{ maxWidth: "400px", width: "100%", backgroundColor: "#1e293b", borderRadius: "12px", padding: "32px", border: "1px solid #334155", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)" }}>
+            <h2 style={{ fontSize: "24px", fontWeight: "700", color: "#34d399", margin: "0 0 8px 0" }}>Titan Performance Suite</h2>
+            <p style={{ color: "#94a3b8", fontSize: "14px", margin: "0 0 24px 0" }}>Sign in to access Supabase Athlete Analytics</p>
+
+            {authError && (
+              <div style={{ marginBottom: "16px", padding: "12px", backgroundColor: "#7f1d1d", border: "1px solid #ef4444", borderRadius: "6px", color: "#fca5a5", fontSize: "14px" }}>
+                {authError}
+              </div>
+            )}
+
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              setLoading(true);
+              const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+              if (error) setAuthError(error.message);
+              else setSession(data.session);
+              setLoading(false);
+            }} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: "600", letterSpacing: "0.05em", color: "#cbd5e1", textTransform: "uppercase", marginBottom: "6px" }}>Email</label>
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: "100%", backgroundColor: "#0f172a", border: "1px solid #475569", borderRadius: "6px", padding: "10px 12px", color: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box" }} required />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: "600", letterSpacing: "0.05em", color: "#cbd5e1", textTransform: "uppercase", marginBottom: "6px" }}>Password</label>
+                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={{ width: "100%", backgroundColor: "#0f172a", border: "1px solid #475569", borderRadius: "6px", padding: "10px 12px", color: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box" }} required />
+              </div>
+              <button type="submit" disabled={loading} style={{ width: "100%", backgroundColor: "#10b981", color: "#022c22", fontWeight: "700", padding: "12px", borderRadius: "6px", border: "none", cursor: "pointer", fontSize: "15px", marginTop: "8px" }}>
+                {loading ? "Signing in..." : "Sign In"}
+              </button>
+            </form>
+          </div>
+        </div>
+      ) : (
+        <div style={{ padding: "32px", maxWidth: "1200px", margin: "0 auto" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", borderBottom: "1px solid #334155", paddingBottom: "16px" }}>
+            <h1 style={{ fontSize: "28px", fontWeight: "800", color: "#34d399", margin: 0 }}>Titan Performance Suite</h1>
+            <button onClick={() => supabase.auth.signOut()} style={{ backgroundColor: "#334155", color: "#ffffff", border: "none", padding: "8px 16px", borderRadius: "6px", cursor: "pointer", fontSize: "14px", fontWeight: "600" }}>
+              Sign Out ({session.user.email})
+            </button>
+          </div>
+
+          <div style={{ display: "flex", gap: "16px", marginBottom: "24px" }}>
+            <button onClick={() => setSelectedTab("Roster")} style={{ padding: "8px 16px", fontWeight: "600", fontSize: "15px", backgroundColor: "transparent", border: "none", borderBottom: selectedTab === "Roster" ? "3px solid #34d399" : "none", color: selectedTab === "Roster" ? "#34d399" : "#94a3b8", cursor: "pointer" }}>
+              Roster ({athletes.length})
+            </button>
+          </div>
+
+          {loading ? (
+            <p style={{ color: "#94a3b8" }}>Loading Supabase Data...</p>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "20px" }}>
+              {athletes.map((a, i) => (
+                <div key={a.id || i} style={{ backgroundColor: "#1e293b", border: "1px solid #334155", padding: "20px", borderRadius: "10px" }}>
+                  <h3 style={{ margin: "0 0 8px 0", color: "#34d399", fontSize: "18px", fontWeight: "700" }}>{a.name || a.athlete_name || `Athlete #${i + 1}`}</h3>
+                  <p style={{ margin: "4px 0", color: "#cbd5e1", fontSize: "14px" }}>Position: {a.position || "N/A"}</p>
+                  <p style={{ margin: "4px 0", color: "#cbd5e1", fontSize: "14px" }}>Status: {a.status || "Active"}</p>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       )}
     </div>
